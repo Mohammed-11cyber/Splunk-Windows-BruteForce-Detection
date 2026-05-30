@@ -17,4 +17,4 @@ The investigation revealed a clear, continuous attack chain. First, an automated
 ## Full Technical Report PDF
 The complete case file, featuring the raw search queries, custom regex strings, and the interactive Splunk Security Monitoring Dashboard, is fully documented in the attached project file in this repository. 
 
-Please download the PDF directly from the file list above to view the complete multi-page analysis report!
+Please download the PDF directly from the file list below to view the complete multi-page analysis report!
