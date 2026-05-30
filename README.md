@@ -1,35 +1,20 @@
 # Splunk-Windows-BruteForce-Detection
 Detection engineering and incident triage using Splunk SPL to correlate Windows authentication anomalies and post-exploitation process creation (Event IDs 4625, 4624, 4648, 4688).
-# SIEM Triage & Detection Engineering: Tracking the Attack Chain in Splunk
+# Windows Security Log Investigation and Detection Engineering
 
-## 📌 Project Overview
-[cite_start]This project simulates an enterprise-level Security Operations Center (SOC) workflow[cite: 476]. [cite_start]Using **Splunk**, I developed detection logic and conducted an incident response triage over unparsed, unstructured Windows Security Event logs[cite: 476, 477]. 
+## Project Description
+This project focuses on simulating a real-world Security Operations Center investigation by triaging unparsed Windows Security Event logs inside Splunk. The core goal was to track a complete cyber attack lifecycle from an initial automated access attempt to a successful host compromise and the execution of a persistent backdoor. Because the ingested CSV data was completely unstructured, I utilized manual field extractions and custom Regular Expressions within Splunk Search Processing Language to successfully isolate the attack telemetry.
 
-[cite_start]The investigation maps out a complete cyber attack lifecycle—moving from an automated network brute-force attempt to a confirmed endpoint breach, credential abuse, and a sneaky post-exploitation persistent backdoor[cite: 813, 818].
+## Core Windows Event Identifiers Correlated
+* **Event ID 4625:** Implemented to capture repeated failed login events targeting specific user accounts. A time-based threshold alert was engineered to trigger when five or more authentication failures occurred within a single minute.
+* **Event ID 4624:** Investigated immediately following the brute-force storm to detect a successful breach. The connection was isolated as a Logon Type 3, which flags an unauthorized network-based authentication.
+* **Event ID 4648:** Analyzed to identify instances where the threat actor manually supplied explicit administrative credentials to execute elevated actions on the local host.
+* **Event ID 4688:** Audited to track post-exploitation command execution telemetry on the endpoint. This captured the attacker launching a legitimate system wrapper process, sshd.exe, with a reverse flag parameter used to establish a covert remote port forwarding tunnel to maintain access.
 
----
+## Incident Timeline Reconstruction
+The investigation revealed a clear, continuous attack chain. First, an automated password spray targeted a specific admin account over a network interface. The attacker successfully guessed the valid credential string, authenticated remotely, and immediately abused internal system privileges. Finally, process tracking exposed the deployment of a background port forward designed to bypass network boundaries and establish persistence.
 
-## 🛠️ Tools, Core Logic & Regex Engineering
-[cite_start]Because the source logs were ingested as raw, unstructured event data, standard automated parsing failed[cite: 477, 483]. [cite_start]I utilized Splunk's **Search Processing Language (SPL)** paired with **Regular Expressions (`rex`)** to dynamically isolate and track the malicious trail[cite: 477, 480, 481]:
+## Full Technical Report PDF
+The complete case file, featuring the raw search queries, custom regex strings, and the interactive Splunk Security Monitoring Dashboard, is fully documented in the attached project file in this repository. 
 
-* [cite_start]**Event ID 4625 (Logon Failure):** Traced the volume and velocity of a password-spraying attack targeting `admmig@offsec.lan`[cite: 476, 596]. (Threshold alert set to trigger at $\ge$ 5 failures within 1 minute) [cite_start][cite: 516].
-* [cite_start]**Event ID 4624 (Successful Logon):** Caught the exact second the attacker guessed the password using **Logon Type 3** (Remote Network Access via SMB/SSH)[cite: 477, 637, 639].
-* [cite_start]**Event ID 4648 (Explicit Credentials):** Uncovered post-authentication activity where the attacker attempted to execute tasks under explicit administrative rights on the local host (`localhost`)[cite: 477, 646, 682].
-* [cite_start]**Event ID 4688 (Process Creation):** Audited endpoint execution commands to catch the attacker spawning `sshd.exe` with the **`-R` flag** to open a malicious remote port forwarding tunnel[cite: 477, 745, 747].
-
----
-
-## 📊 The Attack Chain Timeline Uncovered
-1. [cite_start]**The Storm:** The target host registers a rapid burst of failed login attempts under Logon Type 8[cite: 597, 598].
-2. [cite_start]**The Compromise:** The alert engineering pipeline flags an immediate transition to a successful Network Logon (Type 3) for the `admmig` profile[cite: 637, 639].
-3. [cite_start]**The Pivot:** The compromised account manually passes explicit system privileges to operate locally[cite: 680, 682].
-4. [cite_start]**The Backdoor:** The attacker drops an active SSH wrapper (`sshd.exe -R`) to build a covert communication channel and maintain persistent access out of the corporate network[cite: 745, 748, 817].
-
----
-
-## 📂 Full Investigation Report & Dashboards
-[cite_start]The complete multi-page case file features **raw SPL queries, custom Regex strings, step-by-step incident pivot logs, and the final custom Splunk Security Monitoring Dashboard**[cite: 477, 480, 481, 810].
-
-### ➡️ [Click Here to View the Full Analysis Report PDF](./windows%20authentication%20detection%2C%20investigation%20and%20process%20creation%20%20project.pdf)
-
-> ⚠️ **Note on PDF Rendering:** GitHub's built-in viewer can sometimes struggle to display long files with heavy dashboard charts. For the best experience, click the **"Download raw file"** button inside the PDF viewer to open it cleanly on your machine!
+Please download the PDF directly from the file list above to view the complete multi-page analysis report!
